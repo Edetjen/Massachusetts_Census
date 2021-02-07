@@ -1,0 +1,433 @@
+---
+title: "Massachussetts_Census-Ec_20.Rmd"
+author: "Elliott Detjen"
+date: "2/6/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Person Records begin page 30 of Data Dictionary
+
+# ENG = ability to speak English (b-4 scale)
+
+# WAGP = Wages or salary income past 12 months
+
+# MAR = marital status (1-4)
+
+# NAICSP = Industry Code
+
+# MSP = Married Code
+
+# FOD2P = Field of Degree
+
+# WAOB = World Area of Birth; 1.US state (POBP = 001-059) 2.PR and US Island Areas (POBP = 060-099)3.Latin America (POBP = 303,310-399)4.Asia (POBP = 158-159,161,200-299)5.Europe (POBP = 100-157,160,162-199)6.Africa (POBP = 400-499)7.Northern America (POBP = 300-302,304-309)8.Oceania and at Sea (POBP = 500-554)
+
+# RAC1P Race Code: 1.White alone2.Black or African American alone3.American Indian alone4.Alaska Native alone5.American Indian and Alaska Native tribes specified; or.American Indian or Alaska Native, not specified and no other.races6.Asian alone7.Native Hawaiian and Other Pacific Islander alone8.Some Other Race alone9.Two or More Races
+
+# PINCP Person's Total Income: Total person's income (signed, use ADJINC to adjust to constant dollars)bbbbbbb.N/A (less than 15 years old)0000000.None-019998.Loss of $19998 or more (Rounded & bottom-coded.components)-000001..-019997.Loss $1 to $19997 (Rounded components)0000001.$1 or break even0000002..4209995.$2 to $4209995 (Rounded & top-coded components)
+
+# OCCP Occupation: 1010 Computer Programmers, 1020 Software Developers, 1030 Web Developers
+
+```
+
+```{r}
+
+library(tidyverse)
+library(ggplot2)
+
+library(readr)
+mass <- psam_p25 <- read_csv("raw_data/psam_p25.csv", col_types = cols(
+  RT = col_character(),
+  SERIALNO = col_double(),
+  DIVISION = col_double(),
+  SPORDER = col_character(),
+  PUMA = col_character(),
+  REGION = col_double(),
+  ST = col_double(),
+  ADJINC = col_double(),
+  PWGTP = col_character(),
+  AGEP = col_character(),
+  CIT = col_double(),
+  CITWP = col_double(),
+  COW = col_double(),
+  DDRS = col_double(),
+  DEAR = col_double(),
+  DEYE = col_double(),
+  DOUT = col_double(),
+  DPHY = col_double(),
+  DRAT = col_double(),
+  DRATX = col_double(),
+  DREM = col_double(),
+  ENG = col_double(),
+  FER = col_double(),
+  GCL = col_double(),
+  GCM = col_double(),
+  GCR = col_double(),
+  HINS1 = col_double(),
+  HINS2 = col_double(),
+  HINS3 = col_double(),
+  HINS4 = col_double(),
+  HINS5 = col_double(),
+  HINS6 = col_double(),
+  HINS7 = col_double(),
+  INTP = col_character(),
+  JWMNP = col_character(),
+  JWRIP = col_character(),
+  JWTR = col_character(),
+  LANX = col_double(),
+  MAR = col_double(),
+  MARHD = col_double(),
+  MARHM = col_double(),
+  MARHT = col_double(),
+  MARHW = col_double(),
+  MARHYP = col_double(),
+  MIG = col_double(),
+  MIL = col_double(),
+  MLPA = col_double(),
+  MLPB = col_double(),
+  MLPCD = col_double(),
+  MLPE = col_double(),
+  MLPFG = col_double(),
+  MLPH = col_double(),
+  MLPI = col_double(),
+  MLPJ = col_double(),
+  MLPK = col_double(),
+  NWAB = col_double(),
+  NWAV = col_double(),
+  NWLA = col_double(),
+  NWLK = col_double(),
+  NWRE = col_double(),
+  OIP = col_character(),
+  PAP = col_character(),
+  RELP = col_character(),
+  RETP = col_character(),
+  SCH = col_double(),
+  SCHG = col_character(),
+  SCHL = col_character(),
+  SEMP = col_character(),
+  SEX = col_double(),
+  SSIP = col_character(),
+  SSP = col_character(),
+  WAGP = col_character(),
+  WKHP = col_character(),
+  WKL = col_double(),
+  WKW = col_double(),
+  WRK = col_double(),
+  YOEP = col_double(),
+  ANC = col_double(),
+  ANC1P = col_character(),
+  ANC2P = col_character(),
+  DECADE = col_double(),
+  DIS = col_double(),
+  DRIVESP = col_double(),
+  ESP = col_double(),
+  ESR = col_double(),
+  FOD1P = col_double(),
+  FOD2P = col_double(),
+  HICOV = col_double(),
+  HISP = col_character(),
+  INDP = col_character(),
+  JWAP = col_character(),
+  JWDP = col_character(),
+  LANP = col_double(),
+  MIGPUMA = col_character(),
+  MIGSP = col_character(),
+  MSP = col_double(),
+  NAICSP = col_character(),
+  NATIVITY = col_double(),
+  NOP = col_double(),
+  OC = col_double(),
+  OCCP = col_character(),
+  PAOC = col_double(),
+  PERNP = col_character(),
+  PINCP = col_character(),
+  POBP = col_character(),
+  POVPIP = col_character(),
+  POWPUMA = col_character(),
+  POWSP = col_character(),
+  PRIVCOV = col_double(),
+  PUBCOV = col_double(),
+  QTRBIR = col_double(),
+  RAC1P = col_double(),
+  RAC2P = col_character(),
+  RAC3P = col_character(),
+  RACAIAN = col_double(),
+  RACASN = col_double(),
+  RACBLK = col_double(),
+  RACNH = col_double(),
+  RACNUM = col_double(),
+  RACPI = col_double(),
+  RACSOR = col_double(),
+  RACWHT = col_double(),
+  RC = col_double(),
+  SCIENGP = col_double(),
+  SCIENGRLP = col_double(),
+  SFN = col_double(),
+  SFR = col_double(),
+  SOCP = col_character(),
+  VPS = col_character(),
+  WAOB = col_double(),
+  FAGEP = col_double(),
+  FANCP = col_double(),
+  FCITP = col_double(),
+  FCITWP = col_double(),
+  FCOWP = col_double(),
+  FDDRSP = col_double(),
+  FDEARP = col_double(),
+  FDEYEP = col_double(),
+  FDISP = col_double(),
+  FDOUTP = col_double(),
+  FDPHYP = col_double(),
+  FDRATP = col_double(),
+  FDRATXP = col_double(),
+  FDREMP = col_double(),
+  FENGP = col_double(),
+  FESRP = col_double(),
+  FFERP = col_double(),
+  FFODP = col_double(),
+  FGCLP = col_double(),
+  FGCMP = col_double(),
+  FGCRP = col_double(),
+  FHICOVP = col_double(),
+  FHINS1P = col_double(),
+  FHINS2P = col_double(),
+  FHINS3C = col_double(),
+  FHINS3P = col_double(),
+  FHINS4C = col_double(),
+  FHINS4P = col_double(),
+  FHINS5C = col_double(),
+  FHINS5P = col_double(),
+  FHINS6P = col_double(),
+  FHINS7P = col_double(),
+  FHISP = col_double(),
+  FINDP = col_double(),
+  FINTP = col_double(),
+  FJWDP = col_double(),
+  FJWMNP = col_double(),
+  FJWRIP = col_double(),
+  FJWTRP = col_double(),
+  FLANP = col_double(),
+  FLANXP = col_double(),
+  FMARP = col_double(),
+  FMARHDP = col_double(),
+  FMARHMP = col_double(),
+  FMARHTP = col_double(),
+  FMARHWP = col_double(),
+  FMARHYP = col_double(),
+  FMIGP = col_double(),
+  FMIGSP = col_double(),
+  FMILPP = col_double(),
+  FMILSP = col_double(),
+  FOCCP = col_double(),
+  FOIP = col_double(),
+  FPAP = col_double(),
+  FPERNP = col_double(),
+  FPINCP = col_double(),
+  FPOBP = col_double(),
+  FPOWSP = col_double(),
+  FPRIVCOVP = col_double(),
+  FPUBCOVP = col_double(),
+  FRACP = col_double(),
+  FRELP = col_double(),
+  FRETP = col_double(),
+  FSCHGP = col_double(),
+  FSCHLP = col_double(),
+  FSCHP = col_double(),
+  FSEMP = col_double(),
+  FSEXP = col_double(),
+  FSSIP = col_double(),
+  FSSP = col_double(),
+  FWAGP = col_double(),
+  FWKHP = col_double(),
+  FWKLP = col_double(),
+  FWKWP = col_double(),
+  FWRKP = col_double(),
+  FYOEP = col_double(),
+  PWGTP1 = col_character(),
+  PWGTP2 = col_character(),
+  PWGTP3 = col_character(),
+  PWGTP4 = col_character(),
+  PWGTP5 = col_character(),
+  PWGTP6 = col_character(),
+  PWGTP7 = col_character(),
+  PWGTP8 = col_character(),
+  PWGTP9 = col_character(),
+  PWGTP10 = col_character(),
+  PWGTP11 = col_character(),
+  PWGTP12 = col_character(),
+  PWGTP13 = col_character(),
+  PWGTP14 = col_character(),
+  PWGTP15 = col_character(),
+  PWGTP16 = col_character(),
+  PWGTP17 = col_character(),
+  PWGTP18 = col_character(),
+  PWGTP19 = col_character(),
+  PWGTP20 = col_character(),
+  PWGTP21 = col_character(),
+  PWGTP22 = col_character(),
+  PWGTP23 = col_character(),
+  PWGTP24 = col_character(),
+  PWGTP25 = col_character(),
+  PWGTP26 = col_character(),
+  PWGTP27 = col_character(),
+  PWGTP28 = col_character(),
+  PWGTP29 = col_character(),
+  PWGTP30 = col_character(),
+  PWGTP31 = col_character(),
+  PWGTP32 = col_character(),
+  PWGTP33 = col_character(),
+  PWGTP34 = col_character(),
+  PWGTP35 = col_character(),
+  PWGTP36 = col_character(),
+  PWGTP37 = col_character(),
+  PWGTP38 = col_character(),
+  PWGTP39 = col_character(),
+  PWGTP40 = col_character(),
+  PWGTP41 = col_character(),
+  PWGTP42 = col_character(),
+  PWGTP43 = col_character(),
+  PWGTP44 = col_character(),
+  PWGTP45 = col_character(),
+  PWGTP46 = col_character(),
+  PWGTP47 = col_character(),
+  PWGTP48 = col_character(),
+  PWGTP49 = col_character(),
+  PWGTP50 = col_character(),
+  PWGTP51 = col_character(),
+  PWGTP52 = col_character(),
+  PWGTP53 = col_character(),
+  PWGTP54 = col_character(),
+  PWGTP55 = col_character(),
+  PWGTP56 = col_character(),
+  PWGTP57 = col_character(),
+  PWGTP58 = col_character(),
+  PWGTP59 = col_character(),
+  PWGTP60 = col_character(),
+  PWGTP61 = col_character(),
+  PWGTP62 = col_character(),
+  PWGTP63 = col_character(),
+  PWGTP64 = col_character(),
+  PWGTP65 = col_character(),
+  PWGTP66 = col_character(),
+  PWGTP67 = col_character(),
+  PWGTP68 = col_character(),
+  PWGTP69 = col_character(),
+  PWGTP70 = col_character(),
+  PWGTP71 = col_character(),
+  PWGTP72 = col_character(),
+  PWGTP73 = col_character(),
+  PWGTP74 = col_character(),
+  PWGTP75 = col_character(),
+  PWGTP76 = col_character(),
+  PWGTP77 = col_character(),
+  PWGTP78 = col_character(),
+  PWGTP79 = col_character(),
+  PWGTP80 = col_character()
+)
+)
+
+```
+
+```{r}
+
+mass_fil <- mass %>%
+  select("PINCP", "ENG") %>%
+  drop_na() %>%
+  mutate(ENG = str_replace(ENG, pattern = "1", replacement = "Very Well")) %>%
+  mutate(ENG = str_replace(ENG, pattern = "2", replacement = "Well")) %>%
+  mutate(ENG = str_replace(ENG, pattern = "3", replacement = "Not Well")) %>%
+  mutate(ENG = str_replace(ENG, pattern = "4", replacement = "Not At All"))
+
+mass_fil$PINCP <- as.numeric(as.character(mass_fil$PINCP))
+
+class(mass_fil$PINCP)
+```
+
+```{r}
+
+# Histogram for PINCP
+
+ggplot(mass_fil, aes(x = PINCP)) +
+  geom_histogram(bins = 100, fill = "brown", alpha = 0.5, color = "white") +
+  xlim(0, 300000) +
+  ylim(0,1000) +
+  theme_bw() +
+  labs(x = "Personal Income", y = "Frequency", title = "Figure 1: Histogram of Personal Income",
+      caption = "Standard Deviation = 61,576.88\n Mean = 38,613.46\n Median = 20,000\n 10th Percentile = 0\n 90th Percentile = 9,502", subtitle = "Individuals Whose Only Language Is Not English")
+
+sd(mass_fil$PINCP)
+mean(mass_fil$PINCP)
+median(mass_fil$PINCP)
+quantile(mass_fil$PINCP, c(0.1, 0.9))
+
+```
+
+```{r}
+
+ggplot(mass_fil, aes(x = ENG)) +
+  geom_bar(fill = "brown", alpha = 0.5) +
+  theme_classic() +
+  labs(x = "English Ability", y = "Frequency", title = "Figure 2: Histogram of English Ability")
+
+```
+
+```{r}
+
+mass_fil_ENG_Well <- mass_fil %>%
+  filter(ENG %in% c("Well", "Very Well"))
+
+ggplot(mass_fil_ENG_Well, aes(x = PINCP)) +
+geom_histogram(bins = 100, fill = "brown", alpha = 0.5, color = "white") +
+  xlim(0, 300000) +
+  ylim(0,500) +
+  theme_bw() +
+  labs(x = "Personal Income", y = "Frequency", title = "Figure 3: Histogram of Personal Income for Proficient English Speakers")
+
+sd(mass_fil_ENG_Well$PINCP)
+mean(mass_fil_ENG_Well$PINCP)
+median(mass_fil_ENG_Well$PINCP)
+quantile(mass_fil_ENG_Well$PINCP, c(0.1, 0.5, 0.9))
+
+```
+
+```{r}
+
+mass_fil_ENG_Poor <- mass_fil %>%
+  filter(ENG %in% c("Not Well", "Not At All"))
+
+ggplot(mass_fil_ENG_Poor, aes(x = PINCP)) +
+geom_histogram(bins = 100, fill = "brown", alpha = 0.5, color = "white") +
+  xlim(0, 300000) +
+  ylim(0,500) +
+  theme_bw() +
+  labs(x = "Personal Income", y = "Frequency", title = "Figure 4: Histogram of Personal Income for Poor English Speakers")
+
+sd(mass_fil_ENG_Poor$PINCP)
+mean(mass_fil_ENG_Poor$PINCP)
+median(mass_fil_ENG_Poor$PINCP)
+quantile(mass_fil_ENG_Poor$PINCP, c(0.1, 0.5, 0.9))
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
