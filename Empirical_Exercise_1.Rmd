@@ -1,38 +1,21 @@
 ---
-title: "Massachussetts_Census-Ec_20.Rmd"
+title: "Empirical Exercise 1"
 author: "Elliott Detjen"
 date: "2/6/2021"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include= FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-
-# Person Records begin page 30 of Data Dictionary
-
-# ENG = ability to speak English (b-4 scale)
-
-# WAGP = Wages or salary income past 12 months
-
-# MAR = marital status (1-4)
-
-# NAICSP = Industry Code
-
-# MSP = Married Code
-
-# FOD2P = Field of Degree
-
-# WAOB = World Area of Birth; 1.US state (POBP = 001-059) 2.PR and US Island Areas (POBP = 060-099)3.Latin America (POBP = 303,310-399)4.Asia (POBP = 158-159,161,200-299)5.Europe (POBP = 100-157,160,162-199)6.Africa (POBP = 400-499)7.Northern America (POBP = 300-302,304-309)8.Oceania and at Sea (POBP = 500-554)
-
-# RAC1P Race Code: 1.White alone2.Black or African American alone3.American Indian alone4.Alaska Native alone5.American Indian and Alaska Native tribes specified; or.American Indian or Alaska Native, not specified and no other.races6.Asian alone7.Native Hawaiian and Other Pacific Islander alone8.Some Other Race alone9.Two or More Races
-
-# PINCP Person's Total Income: Total person's income (signed, use ADJINC to adjust to constant dollars)bbbbbbb.N/A (less than 15 years old)0000000.None-019998.Loss of $19998 or more (Rounded & bottom-coded.components)-000001..-019997.Loss $1 to $19997 (Rounded components)0000001.$1 or break even0000002..4209995.$2 to $4209995 (Rounded & top-coded components)
-
-# OCCP Occupation: 1010 Computer Programmers, 1020 Software Developers, 1030 Web Developers
 
 ```
 
 ```{r}
+
+# Data Importation and Package Loading
+
 
 library(tidyverse)
 library(ggplot2)
@@ -332,6 +315,8 @@ mass <- psam_p25 <- read_csv("raw_data/psam_p25.csv", col_types = cols(
 
 ```{r}
 
+# Cleaning Data
+
 mass_fil <- mass %>%
   select("PINCP", "ENG") %>%
   drop_na() %>%
@@ -342,20 +327,23 @@ mass_fil <- mass %>%
 
 mass_fil$PINCP <- as.numeric(as.character(mass_fil$PINCP))
 
-class(mass_fil$PINCP)
 ```
 
 ```{r}
 
-# Histogram for PINCP
+# Histogram for PINCP (Figure 1)
 
 ggplot(mass_fil, aes(x = PINCP)) +
   geom_histogram(bins = 100, fill = "brown", alpha = 0.5, color = "white") +
   xlim(0, 300000) +
   ylim(0,1000) +
   theme_bw() +
-  labs(x = "Personal Income", y = "Frequency", title = "Figure 1: Histogram of Personal Income",
-      caption = "Standard Deviation = 61,576.88\n Mean = 38,613.46\n Median = 20,000\n 10th Percentile = 0\n 90th Percentile = 9,502", subtitle = "Individuals Whose Only Language Is Not English")
+  labs(x = "Personal Income", y = "Frequency", title = "Figure 1: Histogram of 
+       Personal Income",
+      caption = 
+        "Standard Deviation = 61,576.88\n Mean = 38,613.46\n Median = 20,000\n 
+      10th Percentile = 0\n 90th Percentile = 9,502", subtitle = "Individuals 
+      Whose Only Language Is Not English")
 
 sd(mass_fil$PINCP)
 mean(mass_fil$PINCP)
@@ -366,14 +354,19 @@ quantile(mass_fil$PINCP, c(0.1, 0.9))
 
 ```{r}
 
+# Histogram for English Ability (Figure 2)
+
 ggplot(mass_fil, aes(x = ENG)) +
   geom_bar(fill = "brown", alpha = 0.5) +
   theme_classic() +
-  labs(x = "English Ability", y = "Frequency", title = "Figure 2: Histogram of English Ability")
+  labs(x = "English Ability", y = "Frequency", title = "Figure 2: Histogram of 
+       English Ability")
 
 ```
 
 ```{r}
+
+# Histogram of Personal Income for Proficient English Speakers (Figure 3)
 
 mass_fil_ENG_Well <- mass_fil %>%
   filter(ENG %in% c("Well", "Very Well"))
@@ -383,7 +376,8 @@ geom_histogram(bins = 100, fill = "brown", alpha = 0.5, color = "white") +
   xlim(0, 300000) +
   ylim(0,500) +
   theme_bw() +
-  labs(x = "Personal Income", y = "Frequency", title = "Figure 3: Histogram of Personal Income for Proficient English Speakers")
+  labs(x = "Personal Income", y = "Frequency", title = "Figure 3: Histogram of
+       Personal Income for Proficient English Speakers")
 
 sd(mass_fil_ENG_Well$PINCP)
 mean(mass_fil_ENG_Well$PINCP)
@@ -394,6 +388,8 @@ quantile(mass_fil_ENG_Well$PINCP, c(0.1, 0.5, 0.9))
 
 ```{r}
 
+# Histogram for Personal Income of Poor English Speakers (Figure 4)
+
 mass_fil_ENG_Poor <- mass_fil %>%
   filter(ENG %in% c("Not Well", "Not At All"))
 
@@ -402,7 +398,8 @@ geom_histogram(bins = 100, fill = "brown", alpha = 0.5, color = "white") +
   xlim(0, 300000) +
   ylim(0,500) +
   theme_bw() +
-  labs(x = "Personal Income", y = "Frequency", title = "Figure 4: Histogram of Personal Income for Poor English Speakers")
+  labs(x = "Personal Income", y = "Frequency", title = "Figure 4: Histogram of 
+       Personal Income for Poor English Speakers")
 
 sd(mass_fil_ENG_Poor$PINCP)
 mean(mass_fil_ENG_Poor$PINCP)
@@ -410,24 +407,3 @@ median(mass_fil_ENG_Poor$PINCP)
 quantile(mass_fil_ENG_Poor$PINCP, c(0.1, 0.5, 0.9))
 
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
